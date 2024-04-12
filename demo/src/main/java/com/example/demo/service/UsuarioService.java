@@ -12,6 +12,8 @@ public interface UsuarioService {
     //CRUD
     Usuario createUsuario(Usuario usuario);
     Usuario updateUsuario(Integer id, Usuario usuario);
-    void deleteUsuario(Integer id);
-    
+    boolean deleteUsuario(Integer id);
+
+
+
 }
