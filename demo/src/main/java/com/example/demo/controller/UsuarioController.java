@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.model.Pedido;
 import com.example.demo.model.Usuario;
+import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.service.UsuarioService;
 
 
@@ -32,6 +34,9 @@ public class UsuarioController {
     private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping
     public List<Usuario> getAllUsuarios(){
@@ -97,6 +102,69 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
      }
+
+     @GetMapping("/{idUsuario}/pedidos")
+     public ResponseEntity<Object> getAllPedidoByUsuarioId(@PathVariable("idUsuario") Integer idUsuario) {
+         List<Pedido> pedidos = usuarioService.getAllPedidoByUsuarioId(idUsuario);
+ 
+         if (pedidos != null) {
+             if (!pedidos.isEmpty()) {
+                 return ResponseEntity.ok(pedidos);
+             } else {
+                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("El usuario no tiene pedidos asociados.");
+             }
+         } else {
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
+         }
+     }
+
+    @PostMapping("/{idUsuario}/pedidos")
+    public ResponseEntity<Object> createPedido(@PathVariable("idUsuario") Integer idUsuario, @RequestBody Pedido pedido) {
+        // Intenta crear el pedido utilizando el servicio
+        Pedido createdPedido = usuarioService.createPedido(idUsuario, pedido);
+        
+        if (createdPedido != null) {
+            // Si el pedido se crea con éxito, devuelve un mensaje de éxito
+            return ResponseEntity.ok("Pedido creado correctamente");
+        } else {
+            // Si el usuario no existe, devuelve un mensaje de error
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado. No se pudo crear el pedido.");
+        }
+    }
+
+    @PutMapping("/{idUsuario}/pedidos/{idPedido}")
+    public ResponseEntity<Object> updatePedido(@PathVariable("idUsuario") Integer idUsuario, @PathVariable("idPedido") Integer idPedido,@RequestBody Pedido pedido) {
+        Pedido updatedPedido = usuarioService.updatePedido(idPedido, pedido);
+        if (updatedPedido != null) {
+            return ResponseEntity.ok("Pedido con ID " + idPedido + " actualizado correctamente");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró el pedido con ID: " + idPedido);
+        }
+    }
+
+
+    @DeleteMapping("/{idUsuario}/pedidos/{idPedido}")
+    public ResponseEntity<Object> deletePedido(@PathVariable("idUsuario") Integer idUsuario, @PathVariable("idPedido") Integer idPedido) {
+        // Verificar si el usuario existe
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(idUsuario);
+        if (usuarioOptional.isPresent()) {
+            // Si el usuario existe, intentar eliminar el pedido
+            boolean deleted = usuarioService.deletePedido(idPedido);
+            if (deleted) {
+                // Si se eliminó correctamente, devolver respuesta exitosa
+                log.info("Pedido con ID {} eliminado con éxito para el usuario con ID {}", idPedido, idUsuario);
+                return ResponseEntity.ok("Pedido con ID " + idPedido + " eliminado correctamente.");
+            } else {
+                // Si el pedido no se pudo eliminar, devolver error
+                log.error("Error al eliminar el pedido con ID {} para el usuario con ID {}", idPedido, idUsuario);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se pudo eliminar el pedido con ID " + idPedido + ".");
+            }
+        } else {
+            // Si el usuario no existe, devolver error
+            log.error("Usuario con ID {} no encontrado.", idUsuario);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario con ID " + idUsuario + " no encontrado.");
+        }
+    }
 
 
 

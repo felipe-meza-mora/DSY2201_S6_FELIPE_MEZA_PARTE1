@@ -3,6 +3,7 @@ package com.example.demo.model;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 
@@ -37,6 +39,8 @@ public class Usuario {
     @Column(name="password")
     @NotBlank(message = "La PASSWORD, no puede estar vacía")
     @Size(max = 100)
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[-_@#$%^&+=!])(?=\\S+$).{4,}$",
+    message = "La contraseña debe contener al menos 4 caracteres, incluyendo al menos una mayúscula, una minúscula, un dígito y uno de los siguientes caracteres especiales: '-', '_', '@', '#', '$', '%', '^', '&', '+', '=' o '!'.")
     private String password;
 
     @Column(name="direccion")
@@ -44,8 +48,8 @@ public class Usuario {
     @Size(max = 100)
     private String direccion;
 
-    @OneToMany(mappedBy = "usuario")
-    List<Pedido> pedidolist;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    List<Pedido> pedidos;
 
     public Integer getId(){
         return id;
@@ -85,6 +89,10 @@ public class Usuario {
     
     public void setDireccion(String direccion){
         this.direccion=direccion;
+    }
+
+    public List<Pedido> getPedidos() {
+        return pedidos;
     }
 
     
