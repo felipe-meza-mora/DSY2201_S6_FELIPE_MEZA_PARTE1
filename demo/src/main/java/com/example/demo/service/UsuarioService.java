@@ -13,6 +13,9 @@ public interface UsuarioService {
     Usuario createUsuario(Usuario usuario);
     Usuario updateUsuario(Integer id, Usuario usuario);
     boolean deleteUsuario(Integer id);
+    Usuario login(String usuario, String password);
+
+
 
 
 

@@ -88,6 +88,17 @@ public class UsuarioController {
         }
      }
 
+     @PostMapping("/login")
+     public ResponseEntity<String> login(@RequestBody Usuario usuario){
+        Usuario usuarioAutenticado = usuarioService.login(usuario.getUsuario(), usuario.getPassword());
+        if (usuarioAutenticado != null) {
+            return ResponseEntity.ok("Inicio de sesión exitoso");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
+        }
+     }
+
+
 
      static class ErrorResponse {
         private final String message;

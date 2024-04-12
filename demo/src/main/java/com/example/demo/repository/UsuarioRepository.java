@@ -6,5 +6,5 @@ import com.example.demo.model.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario,Integer>  {
 
-    boolean existsByUsuarioAndPassword(String usuario, String password);
+    public Usuario findByUsuarioAndPassword(String usuario, String password);
 }
